@@ -6,5 +6,7 @@
 #include <iostream>
 
 int main() {
-    std::cout << "hello, arvcc." << std::endl;
+  //------------------------Lexer Test-------------------------------------
+  std::cout << GetTok() << std::endl;
+  //------------------------Lexer Test-------------------------------------
 }

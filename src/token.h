@@ -5,17 +5,15 @@
 #ifndef ARVCC_TOKEN_H
 #define ARVCC_TOKEN_H
 
-struct Token{
-    int token;
-    int value;
-};
+#include <string>
 
-enum {
-    T_ADD,
-    T_MINUS,
-    T_STAR,
-    T_SLASH,
-    T_INTLIT,  // int literal
+enum Token{
+  tok_eof = -1,
+
+  tok_def = -2,
+  tok_extern = -3,
+  tok_ident = -4,
+  tok_number = -5,
 };
 
 #endif //ARVCC_TOKEN_H

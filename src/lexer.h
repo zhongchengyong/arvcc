@@ -5,7 +5,7 @@
 #ifndef ARVCC_LEXER_H
 #define ARVCC_LEXER_H
 
-
+int GetTok();
 
 
 
