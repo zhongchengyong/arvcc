@@ -7,6 +7,7 @@
 
 int GetTok();
 
+int GetNextToken();
 
 
 #endif //ARVCC_LEXER_H

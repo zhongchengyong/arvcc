@@ -7,8 +7,13 @@
 
 #include <cstdio>
 
-static std::string identifier_str;
-static double num_val;
+std::string identifier_str;
+double num_val;
+int cur_tok;
+
+int GetNextToken() {
+  return cur_tok = GetTok();
+}
 
 int GetTok() {
   static int last_char = ' ';
