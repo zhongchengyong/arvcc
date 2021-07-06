@@ -14,6 +14,7 @@ std::unique_ptr<ExprAST> LogError(const char *str);
 
 std::unique_ptr<PrototypeAST> LogErrorP(const char *str);
 
+llvm::Value *LogErrorV(const char *str);
 
 
 #endif //ARVCC_SRC_LOGGER_H_

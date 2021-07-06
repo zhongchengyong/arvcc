@@ -5,6 +5,18 @@
 #ifndef ARVCC_SRC_AST_H_
 #define ARVCC_SRC_AST_H_
 
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -13,6 +25,7 @@
 class ExprAST {
  public:
   virtual ~ExprAST() = default;;
+  virtual llvm::Value *CodeGen() = 0;
 };
 
 // Number
@@ -20,12 +33,14 @@ class NumberExprAST : public ExprAST {
   double m_val;
  public:
   NumberExprAST(double val) : m_val(val) {}
+  llvm::Value *CodeGen() override;
 };
 
  class VariableExprAST : public ExprAST {
    std::string m_name;
   public:
    VariableExprAST(const std::string& name) : m_name(name) {}
+   llvm::Value *CodeGen() override;
  };
 
 class BinaryExprAST : public ExprAST {
@@ -34,6 +49,7 @@ class BinaryExprAST : public ExprAST {
  public:
   BinaryExprAST(char op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs) :
   m_op{op}, m_lhs{std::move(lhs)}, m_rhs{std::move(rhs)} {}
+  llvm::Value *CodeGen() override;
 };
 
 class CallExprAST : public ExprAST {
@@ -42,6 +58,7 @@ class CallExprAST : public ExprAST {
  public:
   CallExprAST(const std::string &callee, std::vector<std::unique_ptr<ExprAST>> args) :
   m_callee{callee}, m_args{std::move(args)} {}
+  llvm::Value *CodeGen() override;
 };
 
 // Prototype
