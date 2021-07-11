@@ -8,7 +8,6 @@
 
 #include <cstdio>
 
-
 std::unique_ptr<ExprAST> LogError(const char *str) {
   fprintf(stderr, "LogError: %s\n", str);
   return nullptr;

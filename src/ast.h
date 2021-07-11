@@ -36,19 +36,19 @@ class NumberExprAST : public ExprAST {
   llvm::Value *CodeGen() override;
 };
 
- class VariableExprAST : public ExprAST {
-   std::string m_name;
-  public:
-   VariableExprAST(const std::string& name) : m_name(name) {}
-   llvm::Value *CodeGen() override;
- };
+class VariableExprAST : public ExprAST {
+  std::string m_name;
+ public:
+  VariableExprAST(const std::string &name) : m_name(name) {}
+  llvm::Value *CodeGen() override;
+};
 
 class BinaryExprAST : public ExprAST {
   char m_op;
   std::unique_ptr<ExprAST> m_lhs, m_rhs;
  public:
   BinaryExprAST(char op, std::unique_ptr<ExprAST> lhs, std::unique_ptr<ExprAST> rhs) :
-  m_op{op}, m_lhs{std::move(lhs)}, m_rhs{std::move(rhs)} {}
+      m_op{op}, m_lhs{std::move(lhs)}, m_rhs{std::move(rhs)} {}
   llvm::Value *CodeGen() override;
 };
 
@@ -57,7 +57,7 @@ class CallExprAST : public ExprAST {
   std::vector<std::unique_ptr<ExprAST>> m_args;
  public:
   CallExprAST(const std::string &callee, std::vector<std::unique_ptr<ExprAST>> args) :
-  m_callee{callee}, m_args{std::move(args)} {}
+      m_callee{callee}, m_args{std::move(args)} {}
   llvm::Value *CodeGen() override;
 };
 
@@ -67,6 +67,8 @@ class PrototypeAST {
   std::vector<std::string> m_ars;
  public:
   PrototypeAST(const std::string &name, std::vector<std::string> args) : m_name{name}, m_ars{args} {}
+  llvm::Function *CodeGen();
+  const std::string &GetName() const { return m_name; };
 };
 
 /**
@@ -79,7 +81,8 @@ class FunctionAST {
   std::unique_ptr<ExprAST> m_body;
  public:
   FunctionAST(std::unique_ptr<PrototypeAST> proto, std::unique_ptr<ExprAST> body) :
-  m_proto{std::move(proto)}, m_body{std::move(body)} {}
+      m_proto{std::move(proto)}, m_body{std::move(body)} {}
+  llvm::Function *CodeGen();
 };
 
 #endif //ARVCC_SRC_AST_H_

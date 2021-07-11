@@ -8,26 +8,24 @@
 
 #include "ast.h"
 
-
 int GetTokenPrecedence();
-
 
 /**
  * numberexpr ::= number
  */
- std::unique_ptr<ExprAST> ParseNumberExpr();
+std::unique_ptr<ExprAST> ParseNumberExpr();
 
 /**
  * parenexpr ::= '(' expression ')'
  */
- std::unique_ptr<ExprAST> ParseParenExpr();
+std::unique_ptr<ExprAST> ParseParenExpr();
 
 /**
  * identifierexpr
  *      ::= identifier
  *      ::= identifier '(' expression* ')'
  */
- std::unique_ptr<ExprAST> ParseIdentifierExpr();
+std::unique_ptr<ExprAST> ParseIdentifierExpr();
 
 /**
  * Primary
@@ -35,24 +33,24 @@ int GetTokenPrecedence();
  *        ::= numberexpr
  *        ::=parenexpr
  */
- std::unique_ptr<ExprAST> ParsePrimary();
+std::unique_ptr<ExprAST> ParsePrimary();
 
- std::unique_ptr<ExprAST> ParseExpression();
+std::unique_ptr<ExprAST> ParseExpression();
 
 /**
  * binoprhs
  *         ::= (op primary)*
  * Note: Operator-precedence parser
  */
- std::unique_ptr<ExprAST> ParseBinOpRHS(int expr_prec, std::unique_ptr<ExprAST> lhs);
+std::unique_ptr<ExprAST> ParseBinOpRHS(int expr_prec, std::unique_ptr<ExprAST> lhs);
 
- std::unique_ptr<PrototypeAST> ParsePrototype();
+std::unique_ptr<PrototypeAST> ParsePrototype();
 
- std::unique_ptr<FunctionAST> ParseDefinition();
+std::unique_ptr<FunctionAST> ParseDefinition();
 
- std::unique_ptr<FunctionAST> ParseTopLevelExpr();
+std::unique_ptr<FunctionAST> ParseTopLevelExpr();
 
- std::unique_ptr<PrototypeAST> ParseExtern();
+std::unique_ptr<PrototypeAST> ParseExtern();
 
 void MainLoop();
 

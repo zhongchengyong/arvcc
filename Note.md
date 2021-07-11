@@ -17,6 +17,10 @@ Three types of AST is used for Kaleidscope:
 > class Value: SSA(static single assignment) register or SSA value.
 > The most distinct aspect of SSA values is that their value is computed as the related instruction executes, and it does not get a new value until (and if) the instruction re-executes
 
+## IR
+* Add CodeGen for AST
+* Add CodeGen() function call in HandleExtern() for IR output
+
 
 ### Improvement
 * Use visit pattern

@@ -7,14 +7,17 @@
 #include "logger.h"
 #include "token.h"
 
+#include "llvm/Support/raw_os_ostream.h"
+
+using namespace llvm;
+
 extern int num_val;
 extern int cur_tok;
 extern std::string identifier_str;
 
-
 std::map<char, int> bin_op_precedence;
 
- int GetTokenPrecedence() {
+int GetTokenPrecedence() {
   if (!isascii(cur_tok)) return -1;
 
   int tok_prec = bin_op_precedence[cur_tok];
@@ -22,13 +25,13 @@ std::map<char, int> bin_op_precedence;
   return tok_prec;
 }
 
- std::unique_ptr<ExprAST> ParseNumberExpr() {
+std::unique_ptr<ExprAST> ParseNumberExpr() {
   auto result = std::make_unique<NumberExprAST>(num_val);
   GetNextToken();
   return std::move(result);
 }
 
- std::unique_ptr<ExprAST> ParseParenExpr() {
+std::unique_ptr<ExprAST> ParseParenExpr() {
   GetNextToken(); // Eat '('
   auto v = ParseExpression();
   if (!v) return nullptr;
@@ -39,7 +42,7 @@ std::map<char, int> bin_op_precedence;
   return v;
 }
 
- std::unique_ptr<ExprAST> ParseIdentifierExpr() {
+std::unique_ptr<ExprAST> ParseIdentifierExpr() {
   std::string id_name = identifier_str;
 
   GetNextToken();  // Eat identifier
@@ -68,26 +71,22 @@ std::map<char, int> bin_op_precedence;
   return std::make_unique<CallExprAST>(id_name, std::move(args));
 }
 
- std::unique_ptr<ExprAST> ParsePrimary() {
+std::unique_ptr<ExprAST> ParsePrimary() {
   switch (cur_tok) {
-    case tok_ident:
-      return ParseIdentifierExpr();
-    case tok_number:
-      return ParseNumberExpr();
-    case '(':
-      return ParseParenExpr();
-    default:
-      return LogError("unknown token when expecting an expression");
+    case tok_ident:return ParseIdentifierExpr();
+    case tok_number:return ParseNumberExpr();
+    case '(':return ParseParenExpr();
+    default:return LogError("unknown token when expecting an expression");
   }
 }
 
- std::unique_ptr<ExprAST> ParseExpression() {
+std::unique_ptr<ExprAST> ParseExpression() {
   auto lhs = ParsePrimary();
   if (!lhs) return nullptr;
   return ParseBinOpRHS(0, std::move(lhs));
 }
 
- std::unique_ptr<ExprAST> ParseBinOpRHS(int expr_prec, std::unique_ptr<ExprAST> lhs) {
+std::unique_ptr<ExprAST> ParseBinOpRHS(int expr_prec, std::unique_ptr<ExprAST> lhs) {
   while (true) {
     int tok_prec = GetTokenPrecedence();
 
@@ -114,7 +113,7 @@ std::map<char, int> bin_op_precedence;
 
 /// prototype
 ///   ::= id '(' id* ')'
- std::unique_ptr<PrototypeAST> ParsePrototype() {
+std::unique_ptr<PrototypeAST> ParsePrototype() {
   if (cur_tok != tok_ident)
     return LogErrorP("Expected function name in prototype");
 
@@ -137,7 +136,7 @@ std::map<char, int> bin_op_precedence;
 }
 
 /// definition ::= 'def' prototype expression
- std::unique_ptr<FunctionAST> ParseDefinition() {
+std::unique_ptr<FunctionAST> ParseDefinition() {
   GetNextToken(); // eat def.
   auto Proto = ParsePrototype();
   if (!Proto)
@@ -149,7 +148,7 @@ std::map<char, int> bin_op_precedence;
 }
 
 /// toplevelexpr ::= expression
- std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
+std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
   if (auto E = ParseExpression()) {
     // Make an anonymous proto.
     auto Proto = std::make_unique<PrototypeAST>("__anon_expr",
@@ -160,7 +159,7 @@ std::map<char, int> bin_op_precedence;
 }
 
 /// external ::= 'extern' prototype
- std::unique_ptr<PrototypeAST> ParseExtern() {
+std::unique_ptr<PrototypeAST> ParseExtern() {
   GetNextToken(); // eat extern.
   return ParsePrototype();
 }
@@ -169,7 +168,7 @@ std::map<char, int> bin_op_precedence;
 // Top-Level parsing
 //===----------------------------------------------------------------------===//
 
- void HandleDefinition() {
+void HandleDefinition() {
   if (ParseDefinition()) {
     fprintf(stderr, "Parsed a function definition.\n");
   } else {
@@ -178,16 +177,28 @@ std::map<char, int> bin_op_precedence;
   }
 }
 
- void HandleExtern() {
-  if (ParseExtern()) {
-    fprintf(stderr, "Parsed an extern\n");
+void HandleExtern() {
+//  if (ParseExtern()) {
+//    fprintf(stderr, "Parsed an extern\n");
+//  } else {
+//    // Skip token for error recovery.
+//    GetNextToken();
+//  }
+
+  // Print IR info
+  if (auto prototype_ast = ParseExtern()) {
+    if (auto *fn_ir = prototype_ast->CodeGen()) {
+      fprintf(stderr, "Read extern: ");
+      fn_ir->print(errs());
+      fprintf(stderr, "\n");
+    }
   } else {
     // Skip token for error recovery.
     GetNextToken();
   }
 }
 
- void HandleTopLevelExpression() {
+void HandleTopLevelExpression() {
   // Evaluate a top-level expression into an anonymous function.
   if (ParseTopLevelExpr()) {
     fprintf(stderr, "Parsed a top-level expr\n");
@@ -202,19 +213,15 @@ void MainLoop() {
   while (true) {
     fprintf(stderr, "ready> ");
     switch (cur_tok) {
-      case tok_eof:
-        return;
+      case tok_eof:return;
       case ';': // ignore top-level semicolons.
         GetNextToken();
         break;
-      case tok_def:
-        HandleDefinition();
+      case tok_def:HandleDefinition();
         break;
-      case tok_extern:
-        HandleExtern();
+      case tok_extern:HandleExtern();
         break;
-      default:
-        HandleTopLevelExpression();
+      default:HandleTopLevelExpression();
         break;
     }
   }

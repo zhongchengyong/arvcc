@@ -7,7 +7,7 @@
 
 #include <string>
 
-enum Token{
+enum Token {
   tok_eof = -1,
 
   tok_def = -2,

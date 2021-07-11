@@ -48,7 +48,7 @@ int GetTok() {
   if (last_char == '#') {
     do {
       last_char = getchar();
-    } while(last_char != EOF && last_char != '\n' && last_char != '\r');
+    } while (last_char != EOF && last_char != '\n' && last_char != '\r');
 
     if (last_char == EOF)
       return GetTok();
