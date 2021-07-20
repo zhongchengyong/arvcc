@@ -1,14 +1,20 @@
 //
 // Created by zhong on 6/20/21.
 //
+#include "ast.h"
 #include "lexer.h"
 #include "parser.h"
 
 #include <iostream>
 
 extern std::map<char, int> bin_op_precedence;
+extern std::unique_ptr<llvm::orc::KaleidoscopeJIT> the_jit;
+extern llvm::ExitOnError exit_on_err;
 
 int main() {
+  LLVMInitializeNativeTarget();
+  LLVMInitializeNativeAsmPrinter();
+  LLVMInitializeNativeAsmParser();
   //------------------------Lexer Test-------------------------------------
 //  std::cout << GetTok() << std::endl;
   //------------------------Lexer Test-------------------------------------
@@ -24,6 +30,10 @@ int main() {
   // Prime the first token.
   fprintf(stderr, "ready> ");
   GetNextToken();
+
+  the_jit = exit_on_err(llvm::orc::KaleidoscopeJIT::Create());
+
+  InitializeModuleAndPassManager();
 
   // Run the main "interpreter loop" now.
   MainLoop();

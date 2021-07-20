@@ -10,12 +10,17 @@
 #include "llvm/Support/raw_os_ostream.h"
 
 using namespace llvm;
+using namespace llvm::orc;
 
 extern int num_val;
 extern int cur_tok;
 extern std::string identifier_str;
+extern std::unique_ptr<KaleidoscopeJIT> the_jit;
+extern std::unique_ptr<Module> the_module;
+extern std::unique_ptr<LLVMContext> the_context;
 
 std::map<char, int> bin_op_precedence;
+ExitOnError exit_on_err;
 
 int GetTokenPrecedence() {
   if (!isascii(cur_tok)) return -1;
@@ -169,8 +174,15 @@ std::unique_ptr<PrototypeAST> ParseExtern() {
 //===----------------------------------------------------------------------===//
 
 void HandleDefinition() {
-  if (ParseDefinition()) {
-    fprintf(stderr, "Parsed a function definition.\n");
+  if (auto fn_ast = ParseDefinition()) {
+    if (auto *fn_ir = fn_ast->CodeGen()) {
+      fprintf(stderr, "Parsed a function definition.\n");
+      fn_ir->print(errs());
+      fprintf(stderr, "\n");
+      exit_on_err(the_jit->addModule(
+          ThreadSafeModule(std::move(the_module), std::move(the_context))));
+      InitializeModuleAndPassManager();
+    }
   } else {
     // Skip token for error recovery.
     GetNextToken();

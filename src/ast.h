@@ -5,6 +5,7 @@
 #ifndef ARVCC_SRC_AST_H_
 #define ARVCC_SRC_AST_H_
 
+#include "../examples/Kaleidoscope/BuildingAJIT/Chapter3/KaleidoscopeJIT.h"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -20,6 +21,8 @@
 #include <string>
 #include <memory>
 #include <vector>
+
+void InitializeModuleAndPassManager();
 
 // We have expression, prototype and function object in Kaleidoscope.
 class ExprAST {

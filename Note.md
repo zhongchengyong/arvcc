@@ -25,5 +25,13 @@ Three types of AST is used for Kaleidscope:
 ### Improvement
 * Use visit pattern
 
+## Optimization
+* Constant folding
+* CSE: Common Subexpression Elimination
+### Pass
+1. Whole module pass, can run at link time.
+2. per-function pass, operate on a single function at time.
+
+
 ## Project
 * Add LLVM dependencies for project. see https://llvm.org/docs/CMake.html#embedding-llvm-in-your-project
